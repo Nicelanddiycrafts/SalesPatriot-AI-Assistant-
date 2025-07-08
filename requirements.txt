@@ -1,3 +1,13 @@
 streamlit
 openai
 reportlab
+streamlit
+openai
+matplotlib
+numpy
+reportlab
+Pillow
+st_click_detector
+transformers
+torch
+requests
