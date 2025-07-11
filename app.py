@@ -246,16 +246,16 @@ if tab == "Proposal Generator":
 
 
     with st.form("review_form"):
-        highlighted_text = st.text_area("Paste or type exact text to highlight:", height=100, key="highlighted_text")
-        comment = st.text_area("Write your comment or feedback about the highlighted section:", height=100, key="comment_text")
+        st.text_area("Paste or type exact text to highlight:", height=100, key="highlighted_text")
+        st.text_area("Write your comment or feedback about the highlighted section:", height=100, key="comment_text")
         submit = st.form_submit_button("✅ Submit Review & Feedback")
 
         if submit:
-            if handle_highlight_submission():  # Call the function to handle highlight submission
-                st.session_state.highlighted_text = ""  # Reset the form state
-                st.session_state.comment_text = ""  # Reset the comment state
+            if handle_highlight_submission():  # Safely update your session state variables here
+                st.experimental_rerun()  # Re-runs app, resets form naturally
             else:
                 st.warning("Please provide both highlighted text and comment.")
+
 
 
     if st.session_state.edit_log:
