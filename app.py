@@ -182,9 +182,17 @@ if tab == "Proposal Generator":
             st.info(explain_section(section_to_analyze, mode="summarize"))
 
     st.markdown("#### Step 5: Human-in-the-Loop Review")
+    # === Step 5: Human-in-the-Loop Review ===
+    st.markdown("#### Step 5: Human-in-the-Loop Review")
     colors = ["#d1f6f4", "#c5f2cd", "#f9caca", "#eadbf6", "#fff2c8"]
 
+    # Initialize session keys if not present
+    if "highlight_color" not in st.session_state:
+        st.session_state.highlight_color = "#d1f6f4"
+
     selected_color = st.session_state.highlight_color
+
+    # Render color squares
     color_squares_html = "".join(
         f"<a href='#' id='{c}' style='"
         f"background-color: {c}; "
@@ -195,21 +203,29 @@ if tab == "Proposal Generator":
         for c in colors
     )
 
-    clicked = click_detector(
-        f"<div style='display:flex; align-items:center; gap:12px;'>{color_squares_html}</div>",
+    # Display clickable row
+    clicked_color = click_detector(
+        f"<div style='display:flex; align-items:center; gap:12px; margin-bottom: 10px;'>{color_squares_html}</div>",
         key="color_picker_row"
     )
 
-    if clicked and clicked != st.session_state.highlight_color:
-        st.session_state.highlight_color = clicked
-        st.rerun()
+    # Handle click change
+    if clicked_color and clicked_color != st.session_state.highlight_color:
+        st.session_state.highlight_color = clicked_color
+        st.experimental_rerun()  # rerun to update selection (safe here)
 
-    custom_picker = st.color_picker("🎨 Or choose a custom color :", st.session_state.highlight_color, key="custom_color_picker")
+    # Custom color picker
+    custom_color = st.color_picker(
+        "🎨 Or choose a custom color:", 
+        st.session_state.highlight_color, 
+        key="custom_color_picker"
+    )
 
-    if custom_picker != st.session_state.highlight_color:
-        st.session_state.highlight_color = custom_picker
-        st.rerun()
+    if custom_color != st.session_state.highlight_color:
+        st.session_state.highlight_color = custom_color
+        st.experimental_rerun()
 
+    # Show selected color
     st.write(f"Selected highlight color: {st.session_state.highlight_color}")
 
 
