@@ -196,9 +196,10 @@ if tab == "Proposal Generator":
         for c in colors
     )
 
+    import uuid
     clicked = click_detector(
-    f"<div style='display:flex; align-items:center; gap:12px;'>{color_squares_html}</div>", 
-    key="color_picker_row"
+    f"<div style='display:flex; align-items:center; gap:12px;'>{color_squares_html}</div>",
+    key=f"color_picker_row_{uuid.uuid4()}"
     )
 
     if clicked and clicked != st.session_state.highlight_color:
