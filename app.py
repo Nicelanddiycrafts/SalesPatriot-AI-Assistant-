@@ -252,7 +252,7 @@ if tab == "Proposal Generator":
 
         if submit:
             if handle_highlight_submission():  # Safely update your session state variables here
-                st.experimental_rerun()  # Re-runs app, resets form naturally
+                st.rerun()  # Re-runs app, resets form naturally
             else:
                 st.warning("Please provide both highlighted text and comment.")
 
