@@ -18,15 +18,13 @@ def handle_highlight_submission():
 
     if highlighted_text and comment:
         highlight_color = st.session_state.highlight_color
-        
-        # Clear previous highlights and comments before adding new ones
-        st.session_state.highlights = [{"text": highlighted_text, "color": highlight_color}]
-        st.session_state.edit_log = [{"highlighted": highlighted_text, "comment": comment}]
+        st.session_state.highlights.append({"text": highlighted_text, "color": highlight_color})
+        st.session_state.edit_log.append({"highlighted": highlighted_text, "comment": comment})
+
         st.session_state.draft += f"\n\n[Reviewer Comment on highlighted text: {comment}]"
-        
-        st.success("Feedback and highlight submitted. Thank you! (Simulated feedback loop)")
         return True
     return False
+
 
 
 if "highlight_color" not in st.session_state:
@@ -99,8 +97,18 @@ def create_pdf(text):
     styles.add(ParagraphStyle(name="Body", fontSize=12, leading=18))
     story = [Paragraph("<b>Finalized Proposal</b>", styles["Title"]), Spacer(1, 0.3 * inch)]
 
-    clean_text = re.sub(r'<.*?>', '', text)
-    for paragraph in clean_text.split('\n'):
+    draft_with_highlights = text
+
+    # Apply inline highlights
+    for h in st.session_state.get("highlights", []):
+        escaped = re.escape(h["text"])
+        # Only simple hex colors work for reportlab (like "#ffffcc")
+        # Wrap in <font backcolor="...">...</font>
+        highlighted = f'<font backcolor="{h["color"]}">{h["text"]}</font>'
+        draft_with_highlights = re.sub(escaped, highlighted, draft_with_highlights, flags=re.IGNORECASE)
+
+    # Break paragraphs, preserve inline tags
+    for paragraph in draft_with_highlights.strip().split('\n'):
         if paragraph.strip():
             story.append(Paragraph(paragraph.strip(), styles["Body"]))
             story.append(Spacer(1, 0.2 * inch))
@@ -108,6 +116,8 @@ def create_pdf(text):
     doc.build(story)
     buffer.seek(0)
     return buffer
+
+
 
 # Sample Bids
 MOCK_BIDS = {
