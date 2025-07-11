@@ -16,13 +16,16 @@ def handle_highlight_submission():
 
     if highlighted_text and comment:
         highlight_color = st.session_state.highlight_color
-        # Add the highlight and comment to the session state
-        st.session_state.highlights.append({"text": highlighted_text, "color": highlight_color})
-        st.session_state.edit_log.append({"highlighted": highlighted_text, "comment": comment})
+        
+        # Clear previous highlights and comments before adding new ones
+        st.session_state.highlights = [{"text": highlighted_text, "color": highlight_color}]
+        st.session_state.edit_log = [{"highlighted": highlighted_text, "comment": comment}]
         st.session_state.draft += f"\n\n[Reviewer Comment on highlighted text: {comment}]"
+        
         st.success("Feedback and highlight submitted. Thank you! (Simulated feedback loop)")
         return True
     return False
+
 
 if "highlight_color" not in st.session_state:
     st.session_state.highlight_color = "#d1f6f4"  # default color
@@ -245,16 +248,13 @@ if tab == "Proposal Generator":
 
     with st.form("review_form"):
         highlighted_text = st.text_area("Paste or type exact text to highlight:", height=100, key="highlighted_text")
-        comment = st.text_area(
-            "Write your comment or feedback about the highlighted section:",
-            height=100,
-            key="comment_text",
-        )
+        comment = st.text_area("Write your comment or feedback about the highlighted section:", height=100, key="comment_text")
         submit = st.form_submit_button("✅ Submit Review & Feedback")
 
         if submit:
-            if handle_highlight_submission():  
-                st.rerun() 
+            if handle_highlight_submission():  # Call the function to handle highlight submission
+                st.session_state.highlighted_text = ""  # Reset the form state
+                st.session_state.comment_text = ""  # Reset the comment state
             else:
                 st.warning("Please provide both highlighted text and comment.")
 
