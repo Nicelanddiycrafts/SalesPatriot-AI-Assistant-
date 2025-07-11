@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re
 from st_click_detector import click_detector
+import time
+from datetime import datetime, timedelta
 
 def handle_highlight_submission():
     highlighted_text = st.session_state.get("highlighted_text", "").strip()
@@ -34,6 +36,8 @@ for key in ["draft", "highlights", "edit_log"]:
     if key not in st.session_state:
         st.session_state[key] = [] if "log" in key or "highlights" in key else ""
 
+if "edit_log" not in st.session_state:
+    st.session_state.edit_log = []
 client = OpenAI(api_key=st.secrets["OPENAI"]["OPENAI_API_KEY"])
 
 def generate_proposal(base_prompt, add_honesty=False, add_sources=False, add_confidence=False):
@@ -147,6 +151,8 @@ for key in ["draft", "highlights", "edit_log"]:
 
 if tab == "Proposal Generator":
     st.title("🧾 SalesPatriot Proposal Draft Review Loop (HITL Demo)")
+    if "submit_feedback_time" not in st.session_state:
+        st.session_state.submit_feedback_time = None
 
     st.markdown("#### Step 1: Select or Enter a Federal Opportunity / RFP")
     bid_choice = st.selectbox("Choose a sample bid:", list(MOCK_BIDS.keys()))
@@ -162,6 +168,7 @@ if tab == "Proposal Generator":
     add_honesty = col1.checkbox("Honesty Response", value=True)
     add_sources = col2.checkbox("Source Request")
     add_confidence = col3.checkbox("Confidence Score")
+    
 
     if st.button("✨ Generate Proposal with GPT-4o"):
         if not bid_prompt.strip():
@@ -202,7 +209,7 @@ if tab == "Proposal Generator":
     st.markdown("#### Step 5: Human-in-the-Loop Review")
     colors = ["#d1f6f4", "#c5f2cd", "#f9caca", "#eadbf6", "#fff2c8"]
 
-    # Initialize session keys if not present
+    # Initialize session keys if not edit
     if "highlight_color" not in st.session_state:
         st.session_state.highlight_color = "#d1f6f4"
 
@@ -241,9 +248,8 @@ if tab == "Proposal Generator":
         st.session_state.highlight_color = custom_color
         st.rerun()
 
-    # Show selected color
+   # Show selected color
     st.write(f"Selected highlight color: {st.session_state.highlight_color}")
-
 
     with st.form("review_form"):
         st.text_area("Paste or type exact text to highlight:", height=100, key="highlighted_text")
@@ -251,12 +257,19 @@ if tab == "Proposal Generator":
         submit = st.form_submit_button("✅ Submit Review & Feedback")
 
         if submit:
-            if handle_highlight_submission():  # Safely update your session state variables here
-                st.rerun()  # Re-runs app, resets form naturally
+            if handle_highlight_submission():
+                st.session_state.submit_feedback_time = datetime.now()
+                st.rerun()
             else:
                 st.warning("Please provide both highlighted text and comment.")
 
-
+    # Show success message for 5 seconds
+    if st.session_state.submit_feedback_time:
+        now = datetime.now()
+        if now - st.session_state.submit_feedback_time < timedelta(seconds=5):
+            st.success("✅ Feedback and highlight submitted. Thank you!")
+        else:
+            st.session_state.submit_feedback_time = None  # Expire the message
 
     if st.session_state.edit_log:
         st.markdown("##### 📜 Edit History")
