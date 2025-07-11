@@ -10,6 +10,20 @@ import numpy as np
 import re
 from st_click_detector import click_detector
 
+def handle_highlight_submission():
+    highlighted_text = st.session_state.get("highlighted_text", "").strip()
+    comment = st.session_state.get("comment_text", "").strip()
+
+    if highlighted_text and comment:
+        highlight_color = st.session_state.highlight_color
+        # Add the highlight and comment to the session state
+        st.session_state.highlights.append({"text": highlighted_text, "color": highlight_color})
+        st.session_state.edit_log.append({"highlighted": highlighted_text, "comment": comment})
+        st.session_state.draft += f"\n\n[Reviewer Comment on highlighted text: {comment}]"
+        st.success("Feedback and highlight submitted. Thank you! (Simulated feedback loop)")
+        return True
+    return False
+
 if "highlight_color" not in st.session_state:
     st.session_state.highlight_color = "#d1f6f4"  # default color
 
@@ -239,15 +253,11 @@ if tab == "Proposal Generator":
         submit = st.form_submit_button("✅ Submit Review & Feedback")
 
         if submit:
-            if highlighted_text.strip() and comment.strip():
-                highlight_color = st.session_state.highlight_color
-                st.session_state.highlights.append({"text": highlighted_text.strip(), "color": highlight_color})
-                st.session_state.edit_log.append({"highlighted": highlighted_text.strip(), "comment": comment.strip()})
-                st.session_state.draft += f"\n\n[Reviewer Comment on highlighted text: {comment.strip()}]"
-                st.success("Feedback and highlight submitted. Thank you! (Simulated feedback loop)")
-                st.rerun()
+            if handle_highlight_submission():  
+                st.rerun() 
             else:
                 st.warning("Please provide both highlighted text and comment.")
+
 
     if st.session_state.edit_log:
         st.markdown("##### 📜 Edit History")
