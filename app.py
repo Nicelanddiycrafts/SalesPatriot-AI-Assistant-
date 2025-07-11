@@ -184,34 +184,34 @@ if tab == "Proposal Generator":
     st.markdown("#### Step 5: Human-in-the-Loop Review")
     colors = ["#d1f6f4", "#c5f2cd", "#f9caca", "#eadbf6", "#fff2c8"]
 
-    selected_color = st.session_state.highlight_color 
+    selected_color = st.session_state.highlight_color
     color_squares_html = "".join(
         f"<a href='#' id='{c}' style='"
         f"background-color: {c}; "
         f"width: 40px; height: 40px; display: inline-block; "
         f"border-radius: 8px; margin-right: 8px; cursor: pointer; "
         f"border: 4px solid {'#333' if c == selected_color else '#ccc'}; "
-        f"box-sizing: border-box;"
-        f"'></a>"
+        f"box-sizing: border-box;'></a>"
         for c in colors
     )
 
-    import uuid
     clicked = click_detector(
-    f"<div style='display:flex; align-items:center; gap:12px;'>{color_squares_html}</div>",
-    key=f"color_picker_row_{uuid.uuid4()}"
+        f"<div style='display:flex; align-items:center; gap:12px;'>{color_squares_html}</div>",
+        key="color_picker_row"
     )
 
     if clicked and clicked != st.session_state.highlight_color:
         st.session_state.highlight_color = clicked
-        st.rerun()  # rerun here is okay since it's a click
+        st.rerun()
 
     custom_picker = st.color_picker("🎨 Or choose a custom color :", st.session_state.highlight_color, key="custom_color_picker")
 
     if custom_picker != st.session_state.highlight_color:
         st.session_state.highlight_color = custom_picker
+        st.rerun()
 
     st.write(f"Selected highlight color: {st.session_state.highlight_color}")
+
 
     with st.form("review_form"):
         highlighted_text = st.text_area("Paste or type exact text to highlight:", height=100, key="highlighted_text")
