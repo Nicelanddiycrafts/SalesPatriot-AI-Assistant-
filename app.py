@@ -99,23 +99,27 @@ def create_pdf(text):
 
     draft_with_highlights = text
 
-    # Apply inline highlights
-    for h in st.session_state.get("highlights", []):
-        escaped = re.escape(h["text"])
-        # Only simple hex colors work for reportlab (like "#ffffcc")
-        # Wrap in <font backcolor="...">...</font>
-        highlighted = f'<font backcolor="{h["color"]}">{h["text"]}</font>'
-        draft_with_highlights = re.sub(escaped, highlighted, draft_with_highlights, flags=re.IGNORECASE)
 
-    # Break paragraphs, preserve inline tags
+    for h in st.session_state.get("highlights", []):
+        original_text = h["text"]
+        safe_text = original_text.replace("\n", " ").replace("<", "&lt;").replace(">", "&gt;")
+        highlighted = f'<font backcolor="{h["color"]}">{safe_text}</font>'
+        escaped_pattern = re.escape(original_text)
+        draft_with_highlights = re.sub(escaped_pattern, highlighted, draft_with_highlights, flags=re.IGNORECASE)
+
+
     for paragraph in draft_with_highlights.strip().split('\n'):
         if paragraph.strip():
-            story.append(Paragraph(paragraph.strip(), styles["Body"]))
-            story.append(Spacer(1, 0.2 * inch))
+            try:
+                story.append(Paragraph(paragraph.strip(), styles["Body"]))
+                story.append(Spacer(1, 0.2 * inch))
+            except Exception:
+                story.append(Paragraph("[Error rendering paragraph]", styles["Body"]))
 
     doc.build(story)
     buffer.seek(0)
     return buffer
+
 
 
 
