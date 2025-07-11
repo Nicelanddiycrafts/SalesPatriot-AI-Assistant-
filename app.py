@@ -212,7 +212,7 @@ if tab == "Proposal Generator":
     # Handle click change
     if clicked_color and clicked_color != st.session_state.highlight_color:
         st.session_state.highlight_color = clicked_color
-        st.experimental_rerun()  # rerun to update selection (safe here)
+        st.rerun()  # rerun to update selection (safe here)
 
     # Custom color picker
     custom_color = st.color_picker(
@@ -223,7 +223,7 @@ if tab == "Proposal Generator":
 
     if custom_color != st.session_state.highlight_color:
         st.session_state.highlight_color = custom_color
-        st.experimental_rerun()
+        st.rerun()
 
     # Show selected color
     st.write(f"Selected highlight color: {st.session_state.highlight_color}")
