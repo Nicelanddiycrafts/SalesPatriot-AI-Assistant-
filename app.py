@@ -198,7 +198,6 @@ if tab == "Proposal Generator":
         if st.button("📝 Summarize Section") and section_to_analyze.strip():
             st.info(explain_section(section_to_analyze, mode="summarize"))
 
-    st.markdown("#### Step 5: Human-in-the-Loop Review")
     # === Step 5: Human-in-the-Loop Review ===
     st.markdown("#### Step 5: Human-in-the-Loop Review")
     colors = ["#d1f6f4", "#c5f2cd", "#f9caca", "#eadbf6", "#fff2c8"]
